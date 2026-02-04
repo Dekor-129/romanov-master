@@ -1,0 +1,48 @@
+{
+  "services": {
+    "newbuilding": {
+      "name": "Квартира в новостройке",
+      "pricePerM2": 13000,
+      "balcony": {
+        "none": 0,
+        "finish": 40000,
+        "insulated": 30000
+      }
+    },
+    "secondary": {
+      "name": "Квартира на вторичном рынке",
+      "pricePerM2": 13000,
+      "balcony": {
+        "none": 0,
+        "finish": 40000,
+        "insulated": 30000
+      },
+      "demolition": {
+        "none": 0,
+        "partial": 20000,
+        "full": 40000
+      }
+    },
+    "house": {
+      "name": "Загородный дом",
+      "pricePerM2": 13000,
+      "terrace": {
+        "none": 0,
+        "finish": 40000,
+        "insulated": 30000,
+        "facade": 50000
+      }
+    },
+    "bathroom": {
+      "name": "Санузел",
+      "basePrice": 140000,
+      "pricePerM2": 15000
+    }
+  },
+  "durations": {
+    "newbuilding": "30-45 дней",
+    "secondary": "45-60 дней",
+    "house": "60-90 дней",
+    "bathroom": "21-28 дней"
+  }
+}
