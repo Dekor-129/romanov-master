@@ -25,7 +25,7 @@ export default function Analytics() {
       <noscript>
         <div>
           <img 
-            src={`https://mc.yandex.ru/watch/ваш_ID_счетчика`} 
+            src="https://mc.yandex.ru/watch/106574141" 
             style={{position:'absolute', left:'-9999px'}} 
             alt="" 
           />

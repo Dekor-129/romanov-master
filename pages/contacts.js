@@ -40,7 +40,7 @@ export default function Contacts() {
       icon: <FaTelegram />,
       title: 'Telegram',
       value: 'Написать в Telegram',
-      link: 'https://t.me/ваш_телеграм',
+      link: 'https://t.me/Dekor129', // ЗДЕСЬ ИСПРАВИЛИ
       color: 'bg-blue-100 text-blue-500'
     }
   ]

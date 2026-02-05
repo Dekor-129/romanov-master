@@ -133,7 +133,7 @@ export default function ContactForm({ calculatorType, formData, calculatedPrice,
             onChange={handleChange}
             required
             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            placeholder="+7 (999) 123-45-67"
+            placeholder="+7 910 575-59-89"
           />
         </div>
 
@@ -189,10 +189,10 @@ export default function ContactForm({ calculatorType, formData, calculatedPrice,
         <div className="text-center pt-4">
           <p className="text-gray-600">или позвоните прямо сейчас:</p>
           <a 
-            href="tel:+79991234567" 
+            href="tel:+79105755989"  // ИСПРАВЛЕНО ЗДЕСЬ: был +79991234567
             className="text-blue-600 hover:text-blue-800 font-bold text-lg"
           >
-            +7 (999) 123-45-67
+            +7 910 575-59-89
           </a>
         </div>
       </form>

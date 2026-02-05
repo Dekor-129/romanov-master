@@ -54,7 +54,7 @@ export default function Footer() {
             <h3 className="text-xl font-bold mb-4">Написать в мессенджер</h3>
             <div className="flex space-x-4">
               <a 
-                href="https://t.me/ваш_телеграм" 
+                href="https://t.me/Dekor129" // ИСПРАВЛЕНО ЗДЕСЬ
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="bg-blue-500 p-3 rounded-full hover:bg-blue-600 transition-colors"

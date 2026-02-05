@@ -161,7 +161,7 @@ export default function Reviews() {
               Позвонить и оставить отзыв
             </a>
             <a 
-              href="https://t.me/ваш_телеграм" 
+              href="https://t.me/Dekor129" // ИСПРАВЛЕНО ЗДЕСЬ
               target="_blank" 
               rel="noopener noreferrer"
               className="bg-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition-colors flex items-center justify-center"

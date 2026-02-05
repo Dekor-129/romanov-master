@@ -19,15 +19,18 @@ export default function CalculationResult({ calculatorType, formData, onBack }) 
     )
   }
 
-  // Функция для форматирования чисел с пробелами
+  // Функция для форматирования чисел с пробелами (С ЗАЩИТОЙ ОТ UNDEFINED)
   const formatPrice = (num) => {
+    if (num === undefined || num === null || isNaN(num)) {
+      return '0'
+    }
     return num.toLocaleString('ru-RU')
   }
 
-  // Функция для отображения формулы расчета
+  // Функция для отображения формулы расчета с детализацией
   const renderCalculationFormula = () => {
     if (calculatorType === 'bathroom') {
-      return `от ${formatPrice(price.basePrice)} ₽`
+      return `от ${formatPrice(price.basePrice || price.min)} ₽`
     }
     
     if (!price.pricePerM2 || !price.areaRange) return null
@@ -36,14 +39,160 @@ export default function CalculationResult({ calculatorType, formData, onBack }) 
     const pricePerM2 = price.pricePerM2
     
     if (areaMin === areaMax) {
-      // Одно значение (например "до 25" → 17-25, но показываем как ~25)
       return `${formatPrice(pricePerM2)} × ${Math.round(areaMax)} м²`
     } else {
-      // Диапазон (например "25-40")
-      const minCost = Math.round(pricePerM2 * areaMin)
-      const maxCost = Math.round(pricePerM2 * areaMax)
-      return `${formatPrice(pricePerM2)} × ${areaMin}-${areaMax} м² = ${formatPrice(minCost)}-${formatPrice(maxCost)} ₽`
+      return `${formatPrice(pricePerM2)} × ${areaMin}-${areaMax} м²`
     }
+  }
+
+  // Функция для отображения деталей расчета
+  const renderCalculationDetails = () => {
+    const details = []
+    
+    // Для санузлов
+    if (calculatorType === 'bathroom') {
+      // Базовая цена
+      if (price.basePrice) {
+        let baseLabel = 'Базовая стоимость работ'
+        if (price.details?.isToiletOnly && price.area <= 3) {
+          baseLabel = 'Туалет до 3м² (базовая цена)'
+        } else if (price.area <= 3) {
+          baseLabel = 'Санузел до 3м² (базовая цена)'
+        } else {
+          baseLabel = `Санузел ${price.area?.toFixed(1) || '0'}м² (120 000 ₽ + 40 000 ₽/м²)`
+        }
+        details.push({
+          label: baseLabel,
+          value: `${formatPrice(price.basePrice)} ₽`
+        })
+      }
+      
+      // Демонтаж
+      if (price.demolitionCost && price.demolitionCost > 0) {
+        details.push({
+          label: 'Демонтаж',
+          value: `+${formatPrice(price.demolitionCost)} ₽`,
+          isAdditional: true
+        })
+      }
+      
+      // Гидроизоляция
+      if (price.waterproofingCost && price.waterproofingCost > 0) {
+        let waterproofingLabel = 'Гидроизоляция'
+        if (price.details?.waterproofingType === 'floor') {
+          waterproofingLabel = `Гидроизоляция пола (1 000 ₽/м² × ${price.area?.toFixed(1) || '0'}м²)`
+        } else if (price.details?.waterproofingType === 'full') {
+          waterproofingLabel = `Полная гидроизоляция (5 000 ₽/м² × ${price.area?.toFixed(1) || '0'}м²)`
+        } else if (price.details?.waterproofingType === 'enhanced') {
+          waterproofingLabel = `Усиленная гидроизоляция (7 500 ₽/м² × ${price.area?.toFixed(1) || '0'}м²)`
+        }
+        details.push({
+          label: waterproofingLabel,
+          value: `+${formatPrice(price.waterproofingCost)} ₽`,
+          isAdditional: true
+        })
+      }
+      
+      // Инсталляция
+      if (price.details?.hasInstallation) {
+        details.push({
+          label: 'Инсталляция (скрытый монтаж)',
+          value: `+${formatPrice(15000)} ₽`,
+          isAdditional: true
+        })
+      }
+      
+      // Душевой поддон
+      if (price.details?.hasShowerTray) {
+        details.push({
+          label: 'Душевой поддон + перегородка',
+          value: `+${formatPrice(60000)} ₽`,
+          isAdditional: true
+        })
+      }
+      
+      // Потолок
+      if (price.ceilingCost && price.ceilingCost > 0) {
+        details.push({
+          label: `Потолок (${price.details?.ceilingType || ''})`,
+          value: `+${formatPrice(price.ceilingCost)} ₽`,
+          isAdditional: true
+        })
+      }
+      
+      // Итог без погрешности
+      details.push({
+        label: 'Итого без погрешности:',
+        value: `${formatPrice(price.totalWithoutError)} ₽`,
+        isImportant: true
+      })
+      
+      return details
+    }
+    
+    // Для квартир и домов (старая логика)
+    // Базовая стоимость работ
+    if (price.pricePerM2 && price.areaRange) {
+      const baseCost = price.pricePerM2 * ((price.areaRange.min + price.areaRange.max) / 2)
+      details.push({
+        label: `Работы (${formatPrice(price.pricePerM2)} ₽/м²)`,
+        value: `${formatPrice(Math.round(baseCost))} ₽`
+      })
+    }
+    
+    // Доплата за качество Q4
+    if (price.details?.hasQ4 && calculatorType !== 'bathroom') {
+      const q4Cost = 2000 * ((price.areaRange?.min + price.areaRange?.max) / 2 || 0)
+      details.push({
+        label: 'Качество стен Q4 (+2 000 ₽/м²)',
+        value: `+${formatPrice(Math.round(q4Cost))} ₽`,
+        isAdditional: true
+      })
+    }
+    
+    // Доплата за балкон
+    if (price.details?.balconyType && price.details.balconyType !== 'none' && 
+        (calculatorType === 'newbuilding' || calculatorType === 'secondary')) {
+      const balconyPrice = price.details.balconyType === 'finish' ? 40000 : 60000
+      details.push({
+        label: price.details.balconyType === 'finish' ? 'Отделка балкона' : 'Утепление + отделка балкона',
+        value: `+${formatPrice(balconyPrice)} ₽`,
+        isAdditional: true
+      })
+    }
+    
+    // Доплата за потолки
+    if (price.details?.ceilingType && price.details.ceilingType !== 'other' && 
+        calculatorType !== 'bathroom') {
+      const ceilingPricePerM2 = price.details.ceilingType === 'stretch' ? 1500 : 2000
+      const area = ((price.areaRange?.min + price.areaRange?.max) / 2) || 0
+      const ceilingCost = Math.round(ceilingPricePerM2 * area)
+      details.push({
+        label: price.details.ceilingType === 'stretch' ? 'Натяжные потолки (+1 500 ₽/м²)' : 'Гипсокартон (+2 000 ₽/м²)',
+        value: `+${formatPrice(ceilingCost)} ₽`,
+        isAdditional: true
+      })
+    }
+    
+    // Минимальная цена для студий
+    if (price.details?.isStudio && price.baseMin < 340000) {
+      details.push({
+        label: 'Минимальная цена для студии',
+        value: `${formatPrice(340000)} ₽`,
+        isImportant: true
+      })
+    }
+    
+    // Итог без погрешности для квартир/домов
+    if (price.baseMin && price.baseMax && calculatorType !== 'bathroom') {
+      details.push({
+        label: 'Итого без погрешности:',
+        value: `${formatPrice(price.baseMin)} - ${formatPrice(price.baseMax)} ₽`,
+        isImportant: true
+      })
+    }
+    
+    return details
   }
 
   return (
@@ -63,77 +212,35 @@ export default function CalculationResult({ calculatorType, formData, onBack }) 
         </div>
         
         <div className="text-sm text-gray-500 mt-2">
-          Срок выполнения: {price.days}
+          Срок выполнения: {price.days || '30-60 дней'}
         </div>
       </div>
 
       <div className="bg-gray-50 rounded-xl p-6 mb-8">
         <h3 className="text-xl font-bold mb-4">Детали расчета:</h3>
         <div className="text-left space-y-3">
-          {/* Основная площадь */}
-          {price.pricePerM2 && price.areaRange && (
-            <>
-              <div className="flex justify-between">
-                <span>Работы ({formatPrice(price.pricePerM2)} руб/м²):</span>
-                <span className="font-medium">
-                  {formatPrice(price.baseMin)} - {formatPrice(price.baseMax)} ₽
-                </span>
-              </div>
-              
-              {/* Балкон */}
-              {formData.balcony && formData.balcony !== 'none' && (
-                <div className="flex justify-between">
-                  <span>Балкон ({formData.balcony === 'finish' ? 'отделка' : 'утепление'}):</span>
-                  <span className="font-medium text-green-600">
-                    +{formData.balcony === 'finish' ? '40 000' : '30 000'} ₽
-                  </span>
-                </div>
-              )}
-              
-              {/* Демонтаж для вторички */}
-              {calculatorType === 'secondary' && formData.demolition && formData.demolition !== 'none' && (
-                <div className="flex justify-between">
-                  <span>Демонтаж ({formData.demolition === 'full' ? 'полный' : 'частичный'}):</span>
-                  <span className="font-medium text-green-600">
-                    +{formData.demolition === 'full' ? '40 000' : '20 000'} ₽
-                  </span>
-                </div>
-              )}
-              
-              {/* Терраса для дома */}
-              {calculatorType === 'house' && formData.terrace && formData.terrace !== 'none' && (
-                <div className="flex justify-between">
-                  <span>Терраса/веранда:</span>
-                  <span className="font-medium text-green-600">
-                    +{formData.terrace === 'finish' ? '40 000' : 
-                     formData.terrace === 'insulated' ? '30 000' : '50 000'} ₽
-                  </span>
-                </div>
-              )}
-              
-              {/* Итог без погрешности */}
-              <div className="flex justify-between border-t pt-3 mt-2">
-                <span>Итого без погрешности:</span>
-                <span className="font-medium">
-                  {formatPrice(price.baseMin)} - {formatPrice(price.baseMax)} ₽
-                </span>
-              </div>
-            </>
-          )}
-          
-          {/* Санузел */}
-          {calculatorType === 'bathroom' && price.basePrice && (
-            <div className="flex justify-between">
-              <span>Ремонт санузла под ключ:</span>
-              <span className="font-medium">{formatPrice(price.basePrice)} ₽</span>
+          {/* Выводим детали расчета */}
+          {renderCalculationDetails().map((detail, index) => (
+            <div 
+              key={index} 
+              className={`flex justify-between items-center ${detail.isImportant ? 'bg-yellow-50 p-3 rounded-lg border border-yellow-200' : ''}`}
+            >
+              <span className={detail.isAdditional ? 'text-gray-600' : 'font-medium'}>
+                {detail.isAdditional ? '• ' : ''}{detail.label}
+              </span>
+              <span className={`font-medium ${detail.isAdditional ? 'text-green-600' : detail.isImportant ? 'text-yellow-700' : ''}`}>
+                {detail.value}
+              </span>
             </div>
-          )}
+          ))}
           
           {/* Погрешность ±10% */}
-          <div className="flex justify-between text-sm text-gray-500 border-t pt-3 mt-2">
-            <span>Погрешность расчета (±10%):</span>
-            <span>±{formatPrice(Math.round((price.max - price.min) / 2))} ₽</span>
-          </div>
+          {price.min && price.max && (
+            <div className="flex justify-between text-sm text-gray-500 border-t pt-3 mt-2">
+              <span>Погрешность расчета (±10%):</span>
+              <span>±{formatPrice(Math.round((price.max - price.min) / 2))} ₽</span>
+            </div>
+          )}
           
           {/* Итоговая строка */}
           <div className="flex justify-between border-t pt-3 mt-2 font-bold text-lg">
@@ -170,7 +277,7 @@ export default function CalculationResult({ calculatorType, formData, onBack }) 
         
         <div className="pt-4">
           <a 
-            href="tel:+79105755989" 
+            href="tel:+79105755989"
             className="inline-block text-blue-600 hover:text-blue-800 font-medium"
           >
             Или позвоните прямо сейчас: +7 910 575-59-89

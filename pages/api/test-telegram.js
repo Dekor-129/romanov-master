@@ -1,16 +1,17 @@
 export default async function handler(req, res) {
   console.log('🧪 Запуск теста Telegram бота...')
   
-  // 👇 ВАШИ ДАННЫЕ
-  const BOT_TOKEN = '8543949980:AAEK1mR0kyEh69r2cKrCyCOkSdbBMcDhxFA'
-  const CHAT_ID = '309235641'
+  // Получаем данные из переменных окружения
+  const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN
+  const CHAT_ID = process.env.TELEGRAM_CHAT_ID
   
   // Проверяем наличие токена
-  if (!BOT_TOKEN || BOT_TOKEN.includes('ВАШ_ТОКЕН')) {
+  if (!BOT_TOKEN || !CHAT_ID) {
+    console.error('❌ Переменные окружения не настроены')
     return res.status(500).json({
       success: false,
-      error: 'Токен бота не настроен',
-      instruction: 'Замените BOT_TOKEN на ваш реальный токен'
+      error: 'Переменные окружения TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID не настроены',
+      instruction: 'Добавьте TELEGRAM_BOT_TOKEN и TELEGRAM_CHAT_ID в файл .env.local'
     })
   }
   
@@ -21,10 +22,10 @@ export default async function handler(req, res) {
     const botInfo = await botInfoResponse.json()
     
     if (!botInfo.ok) {
+      console.error('❌ Бот недоступен:', botInfo.description)
       return res.status(500).json({
         success: false,
         error: 'Бот недоступен',
-        telegramError: botInfo.description,
         check: 'Проверьте токен в @BotFather'
       })
     }
@@ -68,13 +69,7 @@ export default async function handler(req, res) {
         message: 'Тестовое сообщение отправлено в Telegram!',
         botInfo: {
           name: botInfo.result.first_name,
-          username: botInfo.result.username,
-          id: botInfo.result.id,
-          canJoinGroups: botInfo.result.can_join_groups
-        },
-        messageInfo: {
-          id: sendResult.result.message_id,
-          date: new Date(sendResult.result.date * 1000).toLocaleString('ru-RU')
+          username: botInfo.result.username
         },
         timestamp: new Date().toISOString()
       })
@@ -83,9 +78,7 @@ export default async function handler(req, res) {
       return res.status(500).json({
         success: false,
         error: 'Не удалось отправить сообщение',
-        telegramError: sendResult.description,
-        errorCode: sendResult.error_code,
-        details: sendResult
+        details: sendResult.description
       })
     }
     
@@ -93,9 +86,7 @@ export default async function handler(req, res) {
     console.error('🔥 Ошибка теста:', error)
     return res.status(500).json({
       success: false,
-      error: 'Внутренняя ошибка сервера',
-      message: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      error: 'Внутренняя ошибка сервера'
     })
   }
 }

@@ -27,7 +27,7 @@ export default function StepBathroom({ step, formData, updateFormData, onNext, o
 
   const renderStep = () => {
     switch (step) {
-      case 2: // Тип санузла
+      case 2: // Тип санузла (ОБНОВЛЕНО - убрали withLaundry)
         return (
           <div>
             <h3 className="text-xl font-bold mb-6">Какой тип санузла?</h3>
@@ -35,7 +35,6 @@ export default function StepBathroom({ step, formData, updateFormData, onNext, o
               {[
                 { id: 'separate', label: 'Раздельный санузел (ванная + туалет отдельно)' },
                 { id: 'combined', label: 'Совмещенный санузел (ванная и туалет вместе)' },
-                { id: 'withLaundry', label: 'Санузел + постирочная/гардеробная' },
                 { id: 'bathroomOnly', label: 'Только ванная комната' },
                 { id: 'toiletOnly', label: 'Только туалет' }
               ].map((option) => (
@@ -124,7 +123,7 @@ export default function StepBathroom({ step, formData, updateFormData, onNext, o
           </div>
         )
 
-      case 5: // Гидроизоляция
+      case 5: // Гидроизоляция (ОБНОВЛЕНО - уточнили цены)
         return (
           <div>
             <h3 className="text-xl font-bold mb-6">Гидроизоляция</h3>
@@ -133,17 +132,17 @@ export default function StepBathroom({ step, formData, updateFormData, onNext, o
                 { 
                   id: 'full', 
                   label: 'Полная гидроизоляция (пол + стены на 1.5м)',
-                  description: 'Для всех санузлов, обязательна'
+                  description: '+ 5000 ₽ за м²'
                 },
                 { 
                   id: 'floor', 
                   label: 'Гидроизоляция только пола',
-                  description: 'Минимальный вариант для сухих зон'
+                  description: '+ 1000 ₽ за м²'
                 },
                 { 
                   id: 'enhanced', 
                   label: 'Усиленная гидроизоляция',
-                  description: 'Для душевых без поддона, влажных зон'
+                  description: '+ 7500 ₽ за м²'
                 },
                 { 
                   id: 'none', 
@@ -162,6 +161,12 @@ export default function StepBathroom({ step, formData, updateFormData, onNext, o
                   )}
                 </button>
               ))}
+            </div>
+            <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+              <p className="text-sm text-blue-800">
+                💡 Для ванных комнат и душевых обязательна гидроизоляция<br/>
+                💡 Для туалетов можно выбрать "Гидроизоляция только пола"
+              </p>
             </div>
           </div>
         )
@@ -221,7 +226,7 @@ export default function StepBathroom({ step, formData, updateFormData, onNext, o
           </div>
         )
 
-      case 8: // Сантехника
+      case 8: // Сантехника (ОБНОВЛЕНО - отметим дорогие опции)
         return (
           <div>
             <h3 className="text-xl font-bold mb-6">Какая сантехника нужна?</h3>
@@ -246,7 +251,12 @@ export default function StepBathroom({ step, formData, updateFormData, onNext, o
                     onChange={(e) => handleMultiSelect('plumbing', option, e.target.checked)}
                     className="h-5 w-5 text-blue-600 rounded"
                   />
-                  <span className="ml-3">{option}</span>
+                  <span className="ml-3">
+                    {option}
+                    {(option === 'Инсталляция (скрытый монтаж)' || option === 'Душевой поддон + перегородка') && (
+                      <span className="ml-2 text-sm text-blue-600 font-medium">(доплата)</span>
+                    )}
+                  </span>
                 </label>
               ))}
             </div>
@@ -282,7 +292,7 @@ export default function StepBathroom({ step, formData, updateFormData, onNext, o
           </div>
         )
 
-      case 10: // Потолок
+      case 10: // Потолок (ОБНОВЛЕНО - отметим доплату)
         return (
           <div>
             <h3 className="text-xl font-bold mb-6">Потолок в санузле</h3>
@@ -299,7 +309,10 @@ export default function StepBathroom({ step, formData, updateFormData, onNext, o
                   onClick={() => handleChange('ceiling', option)}
                   className={`w-full p-4 text-left rounded-lg border-2 transition-all ${localData.ceiling === option ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300'}`}
                 >
-                  {option}
+                  <div className="font-medium">{option}</div>
+                  {option === 'Натяжной (влагостойкий)' || option === 'Реечный (алюминиевый/пластиковый)' || option === 'Гипсокартон (влагостойкий)' ? (
+                    <div className="text-sm text-blue-600 mt-1">+ 15 000 ₽ к стоимости</div>
+                  ) : null}
                 </button>
               ))}
             </div>

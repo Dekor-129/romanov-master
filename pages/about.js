@@ -45,15 +45,30 @@ export default function About() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20">
         {/* Фото и контакты */}
         <div>
-          <div className="bg-gray-200 rounded-2xl p-1 shadow-xl mb-8">
-            <div className="bg-gray-300 rounded-xl h-96 flex flex-col items-center justify-center">
-              <div className="text-center p-8">
-                <div className="w-48 h-48 bg-blue-600 rounded-full mx-auto mb-6 flex items-center justify-center text-white text-6xl">
-                  ДР
+          {/* Фото Дмитрия Романова - ИСПРАВЛЕНО ДЛЯ ВЕРТИКАЛЬНОГО ФОТО */}
+          <div className="bg-gray-200 rounded-2xl p-1 shadow-xl mb-8 overflow-hidden">
+            <div className="relative w-full">
+              {/* Контейнер для вертикального фото с обрезкой */}
+              <div className="aspect-[4/5] md:aspect-[3/4] relative">
+                <img
+                  src="/images/romanov.jpg"
+                  alt="Дмитрий Романов - мастер-отделочник в Рязани"
+                  className="absolute inset-0 w-full h-full object-cover rounded-xl"
+                  style={{ 
+                    objectPosition: '50% 15%', // Сдвигаем фото вверх, чтобы лицо было видно
+                    objectFit: 'cover' // Обрезаем снизу
+                  }}
+                  loading="lazy"
+                />
+                {/* Затемнение сверху для лучшей читаемости текста */}
+                <div className="absolute top-0 left-0 right-0 h-1/3 bg-gradient-to-b from-black/30 to-transparent"></div>
+                
+                {/* Наложение с информацией */}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 text-white">
+                  <h2 className="text-2xl md:text-3xl font-bold mb-1">Дмитрий Романов</h2>
+                  <p className="text-lg text-blue-300">Мастер-отделочник</p>
+                  <p className="text-sm mt-2">Рязань и область • {experienceYears} лет опыта</p>
                 </div>
-                <h2 className="text-3xl font-bold mb-2">Дмитрий Романов</h2>
-                <p className="text-xl text-gray-700">Мастер-отделочник</p>
-                <p className="text-lg text-blue-600 mt-2">Рязань и область</p>
               </div>
             </div>
           </div>
@@ -233,25 +248,48 @@ export default function About() {
         </div>
       </div>
 
-      {/* Призыв к действию */}
-      <div className="mt-16 text-center">
-        <h2 className="text-2xl font-bold mb-6">Хотите узнать больше?</h2>
-        <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          Готов ответить на все ваши вопросы и подробно рассказать о процессе работы
-        </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a 
-            href="tel:+79105755989" 
-            className="bg-blue-600 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors"
-          >
-            Позвонить для консультации
-          </a>
-          <a 
-            href="/portfolio" 
-            className="bg-gray-800 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-900 transition-colors"
-          >
-            Посмотреть мои работы
-          </a>
+      {/* Призыв к действию БЕЗ ДУБЛИРУЮЩЕГО ФОТО */}
+      <div className="mt-20 text-center">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 md:p-12 text-white">
+          <h2 className="text-2xl md:text-3xl font-bold mb-6">Работаем вместе?</h2>
+          <p className="text-xl mb-8 max-w-2xl mx-auto">
+            Я всегда на связи и готов ответить на ваши вопросы. 
+            Позвоните мне или напишите в Telegram для бесплатной консультации.
+          </p>
+          <div className="space-y-6">
+            <div>
+              <p className="font-bold text-2xl mb-2">Дмитрий Романов</p>
+              <p className="text-blue-200 text-lg">Мастер-отделочник • Рязань</p>
+            </div>
+            <div>
+              <a 
+                href="tel:+79105755989" 
+                className="inline-flex items-center text-2xl font-bold hover:text-blue-200 mb-2"
+              >
+                <FaPhone className="mr-4 text-xl" />
+                +7 910 575-59-89
+              </a>
+              <p className="text-blue-200 text-lg">
+                Отвечаю быстро, консультирую бесплатно
+              </p>
+            </div>
+            <div className="pt-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a 
+                  href="tel:+79105755989" 
+                  className="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors"
+                >
+                  Позвонить для консультации
+                </a>
+                <a 
+                  href="/portfolio" 
+                  className="bg-blue-800 text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-blue-900 transition-colors"
+                >
+                  Посмотреть мои работы
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
