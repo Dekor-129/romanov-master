@@ -45,3 +45,6 @@ data/              # Папка с данными приложения
 .secret
 .vscode/
 .idea/
+# .gitignore
+.env.local
+.env*.local

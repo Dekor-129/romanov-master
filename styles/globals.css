@@ -1,26 +1,77 @@
-@import "tailwindcss";
+/* styles/globals.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Плавная прокрутка для всей страницы */
+html {
+  scroll-behavior: smooth;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Кастомные стили для мобильного меню */
+@layer utilities {
+  /* Для очень маленьких экранов (до 360px) */
+  @media (max-width: 360px) {
+    .xs\:inline {
+      display: none;
+    }
+    .xs\:hidden {
+      display: inline;
+    }
+  }
+  
+  /* Для экранов от 361px до 639px */
+  @media (min-width: 361px) {
+    .xs\:inline {
+      display: inline;
+    }
+    .xs\:hidden {
+      display: none;
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Анимация для бургер-меню */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* Улучшенная адаптивность для телефонов */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  h1 {
+    font-size: 1.5rem;
+  }
+  
+  h2 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Предотвращаем мигание при загрузке */
+.no-scroll {
+  overflow: hidden;
+}
+
+/* Стили для активной ссылки в меню */
+.active-link {
+  @apply text-blue-600 bg-blue-50 font-semibold;
 }

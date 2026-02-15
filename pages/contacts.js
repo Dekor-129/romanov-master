@@ -1,3 +1,4 @@
+// pages/contacts.js
 import { useState } from 'react'
 import { FaPhone, FaTelegram, FaMapMarkerAlt, FaClock, FaCheckCircle } from 'react-icons/fa'
 import SEO from '../components/SEO'
@@ -10,17 +11,64 @@ export default function Contacts() {
     service: ''
   })
 
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [error, setError] = useState('')
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // В реальном проекте здесь будет отправка на сервер
-    console.log('Форма отправлена:', formData)
-    setIsSubmitted(true)
-    // Сброс формы через 5 секунд
-    setTimeout(() => setIsSubmitted(false), 5000)
+ const handleSubmit = async (e) => {
+  e.preventDefault()
+  setIsSubmitting(true)
+  setError('')
+
+  try {
+    console.log('Отправляем данные:', formData)
+    
+    // Отправляем в ТОТ ЖЕ endpoint, который работает
+    const response = await fetch('/api/send-to-telegram', {  // используем рабочий endpoint
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: formData.name,
+        phone: formData.phone,
+        email: 'Не указан',
+        comment: formData.message,
+        calculatorType: formData.service || 'Контакты',
+        formData: {
+          service: formData.service,
+          message: formData.message
+        },
+        calculatedPrice: {
+          min: 0,
+          max: 0,
+          days: 'По запросу'
+        }
+      }),
+    })
+
+    const data = await response.json()
+    console.log('Ответ сервера:', data)
+
+    if (data.success) {
+      setIsSubmitted(true)
+      setFormData({
+        name: '',
+        phone: '',
+        message: '',
+        service: ''
+      })
+      setTimeout(() => setIsSubmitted(false), 5000)
+    } else {
+      setError('Ошибка отправки. Пожалуйста, позвоните нам.')
+    }
+  } catch (error) {
+    console.error('Ошибка:', error)
+    setError('Ошибка отправки. Пожалуйста, позвоните нам.')
+  } finally {
+    setIsSubmitting(false)
   }
-
+}
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -40,7 +88,7 @@ export default function Contacts() {
       icon: <FaTelegram />,
       title: 'Telegram',
       value: 'Написать в Telegram',
-      link: 'https://t.me/Dekor129', // ЗДЕСЬ ИСПРАВИЛИ
+      link: 'https://t.me/Dekor129',
       color: 'bg-blue-100 text-blue-500'
     }
   ]
@@ -66,7 +114,6 @@ export default function Contacts() {
         keywords="контакты мастера-отделочника Рязань, ремонт квартир Рязань, телефон мастера по ремонту, связаться с отделочником"
       />
       
-      {/* Заголовок */}
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
           Мои <span className="text-blue-600">контакты</span>
@@ -77,9 +124,7 @@ export default function Contacts() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Левая колонка: Контактная информация */}
         <div>
-          {/* Способы связи */}
           <div className="mb-10">
             <h2 className="text-2xl font-bold mb-6">Свяжитесь со мной</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -101,7 +146,6 @@ export default function Contacts() {
             </div>
           </div>
 
-          {/* Информация о работе */}
           <div className="mb-10">
             <h2 className="text-2xl font-bold mb-6">Информация</h2>
             <div className="bg-gray-50 rounded-xl p-6">
@@ -117,7 +161,6 @@ export default function Contacts() {
             </div>
           </div>
 
-          {/* Карта (заглушка) */}
           <div>
             <h2 className="text-2xl font-bold mb-6">Работаю в Рязани и области</h2>
             <div className="bg-gray-200 rounded-xl h-64 flex items-center justify-center">
@@ -132,7 +175,6 @@ export default function Contacts() {
           </div>
         </div>
 
-        {/* Правая колонка: Форма обратной связи */}
         <div>
           <div className="bg-white rounded-2xl shadow-xl p-8 sticky top-24">
             <h2 className="text-2xl font-bold mb-2">Бесплатная консультация</h2>
@@ -140,6 +182,12 @@ export default function Contacts() {
               Оставьте заявку, и я перезвоню в течение 30 минут
               для уточнения деталей и составления точной сметы.
             </p>
+
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700">
+                {error}
+              </div>
+            )}
 
             {isSubmitted ? (
               <div className="text-center py-12">
@@ -221,9 +269,12 @@ export default function Contacts() {
 
                 <button
                   type="submit"
-                  className="w-full bg-blue-600 text-white py-4 rounded-lg font-bold text-lg hover:bg-blue-700 transition-colors"
+                  disabled={isSubmitting}
+                  className={`w-full py-4 rounded-lg font-bold text-lg ${
+                    isSubmitting ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
+                  } text-white transition-colors`}
                 >
-                  Отправить заявку
+                  {isSubmitting ? 'Отправка...' : 'Отправить заявку'}
                 </button>
 
                 <p className="text-gray-500 text-sm text-center">
@@ -232,7 +283,6 @@ export default function Contacts() {
               </form>
             )}
 
-            {/* Преимущества под формой */}
             <div className="mt-10 pt-8 border-t border-gray-200">
               <h3 className="font-bold mb-4">Почему стоит обратиться:</h3>
               <ul className="space-y-3">
@@ -258,7 +308,6 @@ export default function Contacts() {
         </div>
       </div>
 
-      {/* Часто задаваемые вопросы по связи */}
       <div className="mt-20 max-w-4xl mx-auto">
         <h2 className="text-2xl font-bold text-center mb-8">Как лучше связаться?</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

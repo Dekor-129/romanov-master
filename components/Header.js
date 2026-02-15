@@ -1,3 +1,4 @@
+// components/Header.js
 import Link from 'next/link'
 import { FaPhoneAlt } from 'react-icons/fa'
 
@@ -12,7 +13,6 @@ export default function Header() {
     { name: 'Калькулятор', href: '/calculator' },
   ]
   
-
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-4">
@@ -58,7 +58,7 @@ export default function Header() {
             <Link 
               key={item.name} 
               href={item.href}
-              className="text-gray-700 hover:text-blue-600 font-medium whitespace-nowrap px-3 py-2 bg-gray-100 rounded"
+              className="whitespace-nowrap px-3 py-2 rounded font-medium bg-gray-100 text-gray-700 hover:bg-gray-200"
             >
               {item.name}
             </Link>
